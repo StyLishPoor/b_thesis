@@ -1,0 +1,154 @@
+\documentclass[12pt]{b-thesis}
+\usepackage{tabularx}
+\usepackage{color}
+\usepackage{url}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{comment} 
+\usepackage{amsmath}
+\usepackage{ascmac, amsthm, amssymb}
+\usepackage{otf}
+\usepackage{here}
+\usepackage{url}
+
+\usepackage{threeparttable}
+\newcommand{\bhline}[1]{\noalign{\hrule height #1}}
+
+%%%%%%%%%%%% FOR listing %%%%%%%%%%%%%%%%%%%%
+
+\usepackage{listings}
+\definecolor{hellgelb}{rgb}{1,1,0.8}
+\definecolor{colKeys}{rgb}{0,0,1}
+\definecolor{colIdentifier}{rgb}{0,0,0}
+\definecolor{colComments}{rgb}{1,0,0}
+\definecolor{colString}{rgb}{0,0.5,0}
+\def\lstlistingname{ソースコード}
+\renewcommand{\thelstnumber}{\arabic{lstnumber}:}
+
+\lstset{
+    float=hbp,
+    basicstyle=\ttfamily\small,
+    identifierstyle=\color{colIdentifier},
+    keywordstyle={\color[rgb]{0,0,0.7}},
+    stringstyle={\color[rgb]{0.8,0.2,0}},
+    commentstyle={\color[rgb]{0,0.4,0}},
+    columns=fixed,
+    tabsize=2,
+    frame=single,
+    framexleftmargin=8mm,
+    xleftmargin=8mm,
+    numbersep=1zw,
+    extendedchars=true,
+    showspaces=false,
+    showstringspaces=false,
+    numbers=left,
+    breaklines=true,
+    backgroundcolor=\color{white},
+    breakautoindent=true,
+    captionpos=b,
+    language=bash
+}
+
+%%%%%%%%%%%% FOR listing ここまで%%%%%%%%%%%%%%
+
+%PDFファイルの栞日本語化
+\AtBeginDvi{\special{pdf:tounicode 90ms-RKSJ-UCS2}}
+
+\begin{document}
+%%%%%    Title    %%%%%
+\typeout{Titlepage}
+\title{}
+\titleinenglish{}
+\teacher{寺岡 文男 教授}
+\subteacher{}
+\course{情報工学}
+\courseinenglish{}
+\id{}
+\author{}
+\maketitle
+
+\courseinenglish{}
+\authorinenglish{}
+\titleinenglish{}
+
+
+%%%%%    Abstract    %%%%%
+\typeout{Abstracts}
+\input{abstract}
+\makejabstract
+
+\clearpage
+
+%%%%%    目次    %%%%%
+\typeout{Indexes}
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+
+\tableofcontents
+\thispagestyle{plain}
+
+\listoffigures
+\listoftables
+
+\clearpage
+
+%%%%%    本文    %%%%%
+\typeout{Main part}
+
+\pagestyle{headings}
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\clearpage
+
+\chapter{序論}
+\label{chap:introduction}
+\input{introduction}
+
+\chapter{既存技術}
+\label{chap:existing_technology}
+\input{existing_technology}
+
+\chapter{関連技術・研究}
+\label{chap:related_research}
+\input{related_research}
+
+\chapter{設計概要}
+\label{chap:design}
+\input{design}
+
+\chapter{プロトコル詳細}
+\label{chap:protocol}
+\input{protocol}
+
+\chapter{実装}
+\label{chap:implementation}
+\input{implementation}
+
+\chapter{評価}
+\label{chap:evaluation}
+\input{evaluation}
+
+\chapter{結論}
+\label{chap:conclusion}
+\input{conclusion}
+
+\label{chap:thanks}
+\chapter*{謝辞}
+\input{thanks}
+\addcontentsline{toc}{chapter}{謝辞}
+
+%%%%%    参考文献    %%%%%
+\typeout{References}
+\thispagestyle{plain}
+\bibliographystyle{unsrt}
+\bibliography{b-thesis}
+
+\appendix
+\def\thechapter{付録\Alph{chapter}}
+\chapter{スクリプト}
+\label{chap:appendix}
+\def\thechapter{\Alph{chapter}}
+\typeout{付録}
+\input{appendix}
+\end{document}
