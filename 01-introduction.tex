@@ -1,6 +1,6 @@
 \section{背景}
 近年，コンテンツをノード，コンテンツ間の関係性をエッジとみなしたグラフ表現・解析を行うことへの注目が高まっている．
-Social Network Service の友人関係や，World Wide Web の参照関係などがグラフとして表現される代表例であるが，年々これらの
+Social Network Service の友人関係や，World Wide Web の参照関係などがグラフとして表現される代表例であり，年々これらの
 グラフサイズは巨大化している．
 \cite{ching2015one}では，2015 年時点で Facebook グラフのエッジ数は 1 兆を上回ると報告されており, 
 この先も加速度的にグラフサイズは巨大化していくと予想される．
@@ -13,8 +13,39 @@ Social Network Service の友人関係や，World Wide Web の参照関係など
 各部分グラフの管理者は，管理下のコンテンツに対して自由に関係性を定義し，エッジとして保持する．
 また，全体グラフを集中管理する必要はないので，グラフサイズに対するスケーラビリティも確保されている．
 自律分散グラフ管理を適用したシステムの例として Catalogue \cite{catalogue}などが存在する．
-
-自律分散グラフ管理環境において PageRank \cite{page1999pagerank} や Personalized PageRank \cite{page1999pagerank} などのグラフ演算を実行する場合，
+自律分散グラフ管理環境において PageRank (PR) \cite{page1999pagerank} や Personalized PageRank (PPR) \cite{page1999pagerank} などのグラフ演算を実行する場合，
 全体グラフを演算対象とするのではなく，着目ノードから Random Walk (RW) を実行することで収集した周辺グラフを演算対象とする． 
-グラフ演算において，ノード ID の配置方法はキャッシュミス発生数へ強く影響を与えるため，ノード ID を適切に再配置する手法として 
-Graph Reordering が存在する．RW で収集した
+
+PR や PPR などのグラフ演算実行時にはメモリへの不規則なアクセスによるキャッシュミスが多発する．
+\cite{wei2016speedup,zhang2017making} などでは，グラフ演算完了までの所要時間のうち約 70 \% がキャッシュミスに伴うメインメモリへのアクセス時間による
+ものと報告されている．
+そこで，グラフ演算時のキャッシュミスを減少させるため，各ノードに割り振られた ID を適切に再配置する手法として 
+Graph Reordering が存在する (図\ref{reordering_intro})．
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{./figure/reordering_intro.pdf}
+  \caption{Graph Reordering の例}
+  \label{reordering_intro}
+\end{figure}
+RW で収集したグラフに対しても Reordering は有効であるが，既存の Reordering 手法は対象グラフの
+全体構造が把握可能という制約条件が設定されている．
+つまり，自律分散グラフ管理環境で既存の Reordering 手法を適用する場合，RW によるグラフ収集が完了するまで Reordering を実行できない．
+Reordering を実行するまで収集したグラフはメモリ上で格納し続ける必要があるため，
+収集するグラフサイズに比例したメモリ使用が発生してしまう．
+\begin{comment}
+  並列化による処理時間の減少についての評価も取るのであれば，ここで述べる
+\end{comment}
+人気コンテンツの周辺グラフなど収集したいグラフサイズが巨大な場合を想定すると，
+自律分散グラフ管理環境におけるメモリ使用を抑えた Reorderin 手法が必要となる．
+
+本研究では，自律分散グラフ管理環境においてメモリ使用を抑えるために，RW によるグラフ収集の途中で
+部分的に Reordering を実行する手法として Sequential と　Dynamic Degree Based Grouping (DDBG) を提案する．
+そして，自律分散グラフ管理環境において Sequential, DDBG をそれぞれ実行した時の演算速度向上率，Reordering に伴うメモリ使用量
+を明らかにする．
+\section{本研究の位置付け}
+TO DO
+\section{本論文の構成}
+第１章では自律分散グラフ管理環境の概要と既存の Graph Reordering 手法の問題点を明示し，自律分散グラフ管理環境を想定した
+Graph Reordering 手法の必要性を述べた．第２章では Graph Reordering の技術的な特徴を整理し，Reordering と グラフ演算時のキャッシュミス減少との
+関係性について述べる．第３章では本論文の関連研究について述べる．第４章では提案手法である Sequential と DDBG について述べる．第５章では提案手法の
+評価を行う．最後に第６章では本論文における結論と今後の課題について述べる．
