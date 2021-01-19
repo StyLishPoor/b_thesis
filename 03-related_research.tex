@@ -1,12 +1,70 @@
 \section{Gorder}
-\cite{wei2016speedup}で提案
-\section{HubSort}
-\cite{zhang2017making}で提案
+Gorder\cite{wei2016speedup} は演算時のアクセス局所性に着目し，有向グラフ上で任意の２ノード u, v 間に \textit{neighbor relationship} と \textit{sibling relationship} を定義する．
+そして，これらの関係に基づいてノード u, ノード v の近接度合いをスコア化する．
+neighbor relationship に基づくスコアでは，ノード u，ノード v が双方向にエッジを張っている場合＋２,
+ノード u，ノード v の一方から他方へエッジが張られている場合＋１，ノード u，ノード v 間にエッジが張られていない場合＋０ となる．
+また，sibling relationship に基づくスコアでは，ノード u，ノード v が共通のノード x からエッジを張られている場合＋１ となり，
+ノード x の数に応じてスコアが加算されていく．
+neighbor relationship を図\ref{neighbor} に，sibling relationship を図\ref{sibling} に示す． 
+\begin{figure}[t]
+  \begin{tabular}{cc}
+    \begin{minipage}[t]{0.45\hsize}
+      \centering
+      %\includegraphics[keepaspectratio, scale=0.50]{./figure/id_not_consecutive.pdf}
+      %\includegraphics[keepaspectratio, width=7cm]{./figure/id_not_consecutive.pdf}
+      \includegraphics[width=6.5cm]{./figure/neighbor.pdf}
+      %\includegraphics[scale=0.50]{./figure/id_not_consecutive.pdf}
+      \caption{neighbor relationship}
+      \label{neighbor}
+    \end{minipage} &
+    \begin{minipage}[t]{0.45\hsize}
+      \centering
+      %\includegraphics[keepaspectratio, scale=0.50]{./figure/id_consecutive.pdf}
+      \includegraphics[width=7cm]{./figure/sibling.pdf}
+      %\includegraphics[scale=0.50]{./figure/id_consecutive.pdf}
+      \caption{sibling relationship}
+      \label{sibling}
+    \end{minipage}
+  \end{tabular}
+\end{figure}
+ここで，neighbor relationship に基づくスコアを $S_{n}(u,v)$，sibling relationship に基づくスコアを $S_{s}(u,v)$としたとき，
+ノード u，ノード v のスコア $S(u,v)$ は(\ref{gorder_score})式で定義される．
+\begin{equation}
+  S(u,v) = S_{n}(u,v) + S_{s}(u,v) \label{gorder_score}
+\end{equation}
+そして，ノード u，ノード v の ID がそれぞれ $\phi(u)$，$\phi(v)$に変換される時，
+(\ref{gorder})式で定義する $F(\phi)$ を最大化する ID 配置 $\phi$ に基づいて再配置を実行する．
+\begin{equation}
+  F(\phi) = \sum_{0<\phi(v)-\phi(u)\leq3}^{} S(u,v) \label{gorder}
+\end{equation}
+Gorder はグラフ演算速度の向上率という観点では最良の ID 再配置手法だが，前処理の時間コストが大きすぎるため非実用的と指摘されている\cite{balaji2018graph, faldu2019closer}．
+\section{DegreeSorting}
+DegreeSorting は次数による局所性のみに着目し，ノードを次数に基づき降順にソートし，高次数ノードから昇順の ID を再配置していく．
+ID が近いノードは同程度の次数であることが保証されるため，次数による局所性を十分に考慮することができる．
+しかし，\cite{balaji2018graph, faldu2019closer} などで元の ID が近いノードはグラフ上で近接していることが明らかになっている．
+そのため，次数によるソートでグラフの近接構造を表す情報が失われてしまい，近接構造による局所性を考慮することが不可能となる．
+\section{HubSorting}
+HubSorting \cite{zhang2017making} は，DegreeSorting と同様に次数による局所性に着目しているが，
+全ノードをソートするのではなく，高次数ノードのみソートし ID を再配置している．
+これにより，低次数ノードでは近接構造による局所性を維持しつつ，アクセスが集中する高次数ノードでは次数による局所性を考慮している．
+HubSorting では，平均次数以上の次数を持つノードを高次数ノードとみなしているが，
+実世界グラフおいて平均次数以上のノードに接続しているエッジは全体の 80 - 90 \% を占める\cite{faldu2019closer}．
+そのため，高次数ノードにおいても近接構造による局所性を考慮した ID 再配置を実行する必要があるが，
+HubSorting による再配置では高次数ノードでの近接構造による局所性を考慮できていないという問題点が存在する．
 \section{HubClustering}
-\cite{balaji2018graph}で提案
-\section{Degree Based Grouping}
-\cite{faldu2019closer}で提案
-
-\section*{}
-その他にも，Slash Burn \cite{kang2011beyond}，Rabbit Order \cite{arai2016rabbit}，ReCall \cite{lakhotia2017recall}などの Reordering 手法が提案されている．
-\cite{stanton2012streaming, karypis1998multilevelk}
+HubClustering \cite{balaji2018graph} は，HubSorting における問題点に着目し，高次数ノード内でソートを行わずに元の ID 順を保った再配置を行うことで
+高次数ノードでの近接構造による局所性を考慮している．
+しかし，実世界グラフはスケールフリー性を持つため，平均次数以上のノード内でも次数分布には大きな偏りが発生する．
+そのため，HubClustering では，高次数ノード内での次数分布の偏りを考慮した ID 再配置が行えていないという問題点が存在する．
+\section{Degree Based Grouping (DBG)}
+HubSorting や HubClustering で問題が生じる主要な要因は，平均次数というただ１つの境界値のみで高次数ノードと低次数ノードへ二分しているからである．
+そこで，DBG \cite{faldu2019closer}はグラフの平均次数$\mathbb{A}$に基づき，[0,$\mathbb{A}$/2)，[$\mathbb{A}$/2,$\mathbb{A}$)，[$\mathbb{A}$,2$\mathbb{A}$)，[2$\mathbb{A}$,4$\mathbb{A}$)，
+[4$\mathbb{A}$,8$\mathbb{A}$)，[8$\mathbb{A}$,16$\mathbb{A}$)，[16$\mathbb{A}$,32$\mathbb{A}$)，[32$\mathbb{A}$,$\infty$)
+と 次数の範囲が異なる 8 グループを定義し，各ノードを次数でグループ分けする．
+そして，高次数のグループから昇順の連続した ID を再配置することで次数による局所性を考慮しつつ，各グループ内では元の ID 順を保つことで近接構造による局所性も考慮している．
+\section{まとめ}
+本章では，既存の代表的な ID 再配置手法として，Gorder，DegreeSorting，HubSorting，HubClustering を紹介した．
+また，本章で紹介した手法以外にも，Rabbit Order \cite{arai2016rabbit}，ReCall \cite{lakhotia2017recall}，Slash Burn \cite{kang2011beyond}，
+METIS \cite{karypis1998multilevelk} などの手法が提案されている．
+しかし，既存手法はグラフの全体構造が把握可能という前提のもと議論されている．
+そのため，グラフ取得の完了まで全グラフが手元にない状況へ既存手法を適用することは困難であり，グラフを取得しながら ID を再配置するという手法は存在しない．
