@@ -17,6 +17,16 @@ Social Network Service の友人関係や，World Wide Web の参照関係など
 一般に，分散管理された巨大グラフを全取得するコストは大きい．
 そこで，自律分散グラフ管理環境では PageRank (PR) \cite{page1999pagerank} や Personalized PageRank (PPR) \cite{page1999pagerank} などの
 グラフ演算を実行する場合，着目ノードからランダムウォーク (RW) を実行し，演算対象の部分グラフを取得する．
+RW によるグラフ取得では図\ref{RW_graph} で示すように，確率 1-α で任意の隣接頂点へ，確率 α で始点へ移動し，
+全体の軌跡を部分グラフとして取得する．
+\begin{figure}[t]
+  \centering
+  %\includegraphics[width=\linewidth]{./figure/rw_graph.pdf}
+  %\includegraphics[scale=1.0]{./figure/RW_graph.pdf}
+  \includegraphics[scale=2.0]{./figure/RW_graph.pdf}
+  \caption{ランダムウォークによるグラフ取得}
+  \label{RW_graph}
+\end{figure}
 なお，RW による取得の特徴として
 全体グラフの構造を維持しながら部分グラフの取得が可能という点が挙げられる．
 PR や PPR などのグラフ演算実行時にはメモリへの不規則なアクセスによるキャッシュミスが多発する．
