@@ -57,11 +57,13 @@ HubClustering \cite{balaji2018graph} は，HubSorting における問題点に�
 しかし，実世界グラフはスケールフリー性を持つため，平均次数以上のノード内でも次数分布には大きな偏りが発生する．
 そのため，HubClustering では，高次数ノード内での次数分布の偏りを考慮した ID 再配置が行えていないという問題点が存在する．
 \section{Degree Based Grouping (DBG)}
-HubSorting や HubClustering で問題が生じる主要な要因は，平均次数というただ１つの境界値のみで高次数ノードと低次数ノードへ二分しているからである．
+HubSorting や HubClustering で問題が生じる主要な要因は，平均次数というただ１つの境界値に基づき高次数ノードと低次数ノードを二分しているからである．
 そこで，DBG \cite{faldu2019closer}はグラフの平均次数$\mathbb{A}$に基づき，[0,$\mathbb{A}$/2)，[$\mathbb{A}$/2,$\mathbb{A}$)，[$\mathbb{A}$,2$\mathbb{A}$)，[2$\mathbb{A}$,4$\mathbb{A}$)，
 [4$\mathbb{A}$,8$\mathbb{A}$)，[8$\mathbb{A}$,16$\mathbb{A}$)，[16$\mathbb{A}$,32$\mathbb{A}$)，[32$\mathbb{A}$,$\infty$)
 と 次数の範囲が異なる 8 グループを定義し，各ノードを次数でグループ分けする．
-そして，高次数のグループから昇順の連続した ID を再配置することで次数による局所性を考慮しつつ，各グループ内では元の ID 順を保つことで近接構造による局所性も考慮している．
+HubSorting や HubClustering は，[0,$\mathbb{A}$)，[$\mathbb{A}$,$\infty$) の 2 グループしか定義されていないため，
+高次数ノード内での次数分布の偏りに対応できていないが，DBG では 8 グループ定義することで次数分布の偏りに対応している．
+そして，高次数のグループから元の ID 順を保って昇順の連続した ID を再配置することで次数による局所性と近接構造による局所性の双方を考慮している．
 \section{まとめ}
 本章では，既存の代表的な ID 再配置手法として，Gorder，DegreeSorting，HubSorting，HubClustering を紹介した．
 また，本章で紹介した手法以外にも，Rabbit Order \cite{arai2016rabbit}，ReCall \cite{lakhotia2017recall}，Slash Burn \cite{kang2011beyond}，
