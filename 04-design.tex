@@ -135,6 +135,7 @@ ID の範囲決定後は RW M 回毎に取得したグラフでグループ分�
 そこで DBG-EE では，図\ref{dbg-ee_good_memory} で示すように，再配置済みグラフへの反映が完了した段階で取得したグラフを破棄する．
 これにより，RW によるグラフ取得が完了するまで ID 再配置待ちのグラフ構造を保持し続ける必要が無くなり，空間コストが減少する．
 しかし，Sequential では RW で移動した 1 エッジのみ保持すれば十分であるという点と比べると，Sequential より空間コストの減少は小さい．
+また，再配置を実行する間隔 M の値が大きいほど，取得途中でより巨大なグラフを保持する必要があるため空間コストは増加する．
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{./figure/dbg-ee_bad_memory.pdf}
