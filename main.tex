@@ -1,5 +1,6 @@
 \documentclass[12pt]{b-thesis}
 \usepackage{tabularx}
+\usepackage{booktabs}
 \usepackage{color}
 \usepackage{url}
 \usepackage[dvipdfmx]{graphicx}
@@ -125,12 +126,13 @@
 \label{chap:protocol}
 \input{05-protocol}
 \end{comment}
-
+\begin{comment}
 \chapter{実装}
 \label{chap:implementation}
 \input{06-implementation}
+\end{comment}
 
-\chapter{評価}
+\chapter{実験評価}
 \label{chap:evaluation}
 \input{07-evaluation}
 
@@ -149,6 +151,7 @@
 \bibliographystyle{unsrt}
 \bibliography{b-thesis}
 
+\begin{comment}
 \appendix
 \def\thechapter{付録\Alph{chapter}}
 \chapter{スクリプト}
@@ -156,4 +159,5 @@
 \def\thechapter{\Alph{chapter}}
 \typeout{付録}
 \input{appendix}
+\end{comment}
 \end{document}
