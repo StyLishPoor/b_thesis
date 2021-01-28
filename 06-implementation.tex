@@ -1,0 +1,190 @@
+\section{概要}
+言語は C++17 を用いた．ここでは主に以下の 3 点について述べる．
+\begin{itemize}
+  \item グラフ取得の基本的な実装
+  \item Sequential における再配置の実装
+  \item DBG-EE における再配置の実装 
+\end{itemize}
+\section{グラフ取得の基本的な実装}
+\subsection{グラフ構造を保持するためのデータ構造}
+\label{graph_data}
+まず，取得したグラフを保持するためのデータ構造について述べる．
+本手法では隣接リストによるグラフ表現として，始点ノードの ID をキー，終点ノードの集合をペアとするハッシュ連想配列を採用している．
+%実際に使用したデータ構造をソースコード \ref{data_structure} に示す．
+\begin{lstlisting}[caption=グラフ構造, label=data_structure]
+  typedef unordered_map<unsigned int, vector<unsigned int>> Graph; 
+\end{lstlisting}
+
+\subsection{RW によるグラフ取得}
+\ref{graph_data} 小節で述べたデータ構造を用いて，RW によるグラフ取得を行う．
+RW 中は滞在ノードにおいて 0 以上 1 以下の乱数値を発生させ，乱数値が確率 α を下回った場合は始点へ移動する．
+また，α を下回らない場合でも，滞在ノードの出次数が 0 の場合は始点へ移動する．
+乱数値が α を下回らず，滞在ノードの出自数が 1 以上の場合は，
+滞在ノードの隣接ノード群からランダムに 1 ノードを選択し，そのノードへ移動する．
+このような移動を繰り返す中で，滞在ノードと移動先ノードの間にエッジが存在するかを毎回確認する．
+そして，エッジが存在していない場合は取得グラフに新たなエッジとして追加する．
+\begin{lstlisting}[caption=RW によるグラフ取得, label=rw_graph_get]
+  // All_Graph : データセットを保持するグラフ
+  // Get_Graph : RW により取得したグラフ
+  Graph Get_Graph, All_Graph;
+
+  // 0 以上 １ 以下の乱数生成 
+  random_device seed_gen;
+  mt19937 engine(seed_gen());
+  uniform_real_distribution<> dist(0,1.0);
+  // src : 始点ノード，dst : 終点ノード
+  unsigned int RW_num, RW_count, src, dst;
+  // RW の始点
+  unsigned int start_node;
+  // RW で始点に戻る確率
+  float return_prob;
+
+  while (RW_count < RW_num) {
+    if (dist(engine) < return_prob) {
+      src = start_node;
+      RW_count++;
+      continue;
+    } else {
+      // src から進めない場合，始点へ戻る
+      if (All_Graph[src].size() == 0) {
+        src = start_node;
+        RW_count++;
+        continue;
+      } else {
+        // 移動先として隣接ノード群からランダムに１ノード選択
+        dst = (All_Graph[src]).at(engine() % All_Graph[src].size());
+        // src -> dst にエッジが存在しない場合，Get_Graph へ登録
+        if (find(Get_Graph[src].begin(), Get_Graph[src].end(), dst) == Get_Graph[dst].end()) {
+        }
+        src = dst;
+      }
+    }
+  }
+\end{lstlisting}
+\section{Sequential における再配置の実装}
+Sequential では RW の途中で出会ったノード順に昇順の連続した ID を再配置する．
+再配置が行われた場合，マッピングテーブルに ID の対応関係が登録される．
+ここで，マッピングテーブルの実装として，元の ID をキー，新たな ID をペアとするハッシュ連想配列を採用している．
+\begin{lstlisting}[caption=マッピングテーブル, label=mapping_table]
+  typedef unordered_map<unsigned int, unsigned int> Mapping;
+\end{lstlisting}
+
+実際の処理では，RW で 1 エッジ移動する度にマッピングテーブルの参照・登録を行うことで，ID が再配置された形でグラフ構造を保持する．
+ソースコード \ref{sequential_code} に Sequential における再配置の実装を示す．
+この処理はソースコード \ref{rw_graph_get} における 30 - 32行目で実行される． 
+\begin{lstlisting}[caption=Sequential における再配置, label=sequential_code]
+  // 次の移動先ノードが再配置済みか確認 
+  if (Sequential_Mapping.count(dst) == 0) {
+    Sequential_Mapping[dst] = Sequential_Mapping.size();
+  }
+  // 再配置された ID でグラフ構造を保持
+  mapped_src = Sequential_Mapping[src];
+  mapped_dst = Sequential_Mapping[dst];
+  if (find(Mapped_Graph[mapped_src].begin(), Mapped_Graph[mapped_src].end(), mapped_dst) == Mapped_Graph[mapped_src].end()) {
+    Mapped_Graph[mapped_src].push_back(mapped_dst);
+  }
+\end{lstlisting}
+\section{DBG-EE における再配置の実装}
+\subsection{グループサイズの早期推定}
+DBG-EE ではグラフ取得初期の段階でグループサイズの推定を行う．
+\begin{lstlisting}
+  void Initiate_Group(Graph & Partial_Graph, Group & DDBG_Group, int remain)
+  {
+    vector<unsigned int> group_size(8,0);
+    int deg;
+    for (auto & [src, dsts] : Partial_Graph) {
+      deg = dsts.size();
+      if (deg > 32 * ave_deg) {
+        group_size.at(0)++;
+      } else if (deg > 16 * ave_deg && deg < 32 * ave_deg) {
+        group_size.at(1)++;
+      } else if (deg > 8 * ave_deg && deg < 16 * ave_deg) {
+        group_size.at(2)++;
+      } else if (deg > 4 * ave_deg && deg < 8 * ave_deg) {
+        group_size.at(3)++;
+      } else if (deg > 2 * ave_deg && deg < 4 * ave_deg) {
+        group_size.at(4)++;
+      } else if (deg > 1 * ave_deg && deg < 2 * ave_deg) {
+        group_size.at(5)++;
+      } else if (deg > 0.5 * ave_deg && deg < 1 * ave_deg) {
+        group_size.at(6)++;
+      } else {
+        group_size.at(7)++;
+      }
+    }
+    unsigned int start = 0; 
+    unsigned int width;
+    for (int i = 0; i < DDBG_Group.size(); i++) {
+      width = group_size.at(i) * remain;
+      DDBG_Group.at(i).first = start;
+      DDBG_Group.at(i).second = start + width;
+      start += width + 1;
+    }
+  }
+\end{lstlisting}
+
+\begin{comment}
+\begin{lstlisting}
+void DBGEE(Graph & Partial_Graph, Graph & Mapped_Graph, Group & DBGEE_Group, Mapping & DBGEE_Mapping)
+{
+  unsigned int edge_num = 0;
+  for (auto & [src, dsts] : Partial_Graph){
+    edge_num += dsts.size();
+  }
+  float ave_deg = static_cast<float>(edge_num)/Partial_Graph.size();
+
+  vector<unsigned int> v_sorted;
+  for (auto & [src, dsts] : Partial_Graph){
+    v_sorted.push_back(src);
+  }
+  sort(v_sorted.begin(), v_sorted.end());
+
+  unsigned int mapped_src, mapped_dst;
+  for (auto [src, dsts] : Partial_Graph) {
+    if (DDBG_Mapping.count(src) == 0) {
+      Mapping_id(DDBG_Mapping, DDBG_Group, src, dsts.size(), ave_de
+g);
+].size(), counter, ave_deg);
+    }
+    mapped_src = DDBG_Mapping[src];
+    for (auto & dst : dsts) {
+      if (DDBG_Mapping.count(dst) == 0) {
+        Mapping_id(DDBG_Mapping, DDBG_Group, dst, Partial_Graph[dst
+].size(), ave_deg);
+st].size(), counter, ave_deg);
+      }
+      mapped_dst = DDBG_Mapping[dst];
+      if (find(Mapped_Graph[mapped_src].begin(), Mapped_Graph[mappe
+d_src].end(), mapped_dst) == Mapped_Graph[mapped_src].end()) {
+        Mapped_Graph[mapped_src].push_back(mapped_dst);
+      }
+    }
+  }
+  Partial_Graph.clear();
+}
+\end{lstlisting}
+\end{comment}
+
+\begin{lstlisting}
+void Mapping_id(Mapping & DDBG_Mapping, Group & DDBG_Group, unsigne
+d int original_id, int deg, float ave_deg)
+{
+  if (deg > 32 * ave_deg) {
+    DDBG_Mapping[original_id] = DDBG_Group.at(0).first++;
+  } else if (deg > 16 * ave_deg && deg < 32 * ave_deg) {
+    DDBG_Mapping[original_id] = DDBG_Group.at(1).first++;
+  } else if (deg > 8 * ave_deg && deg < 16 * ave_deg) {
+    DDBG_Mapping[original_id] = DDBG_Group.at(2).first++;
+  } else if (deg > 4 * ave_deg && deg < 8 * ave_deg) {
+    DDBG_Mapping[original_id] = DDBG_Group.at(3).first++;
+  } else if (deg > 2 * ave_deg && deg < 4 * ave_deg) {
+    DDBG_Mapping[original_id] = DDBG_Group.at(4).first++;
+  } else if (deg > 1 * ave_deg && deg < 2 * ave_deg) {
+    DDBG_Mapping[original_id] = DDBG_Group.at(5).first++;
+  } else if (deg > 0.5 * ave_deg && deg < 1 * ave_deg) {
+    DDBG_Mapping[original_id] = DDBG_Group.at(6).first++;
+  } else {
+    DDBG_Mapping[original_id] = DDBG_Group.at(7).first++;
+  }
+}
+\end{lstlisting}
