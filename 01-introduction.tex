@@ -17,18 +17,18 @@ Social Network Service の友人関係や，World Wide Web の参照関係など
 一般に，分散管理された巨大グラフを全取得するコストは大きい．
 そこで，自律分散グラフ管理環境では PageRank (PR) \cite{page1999pagerank} や Personalized PageRank (PPR) \cite{page1999pagerank} などの
 グラフ演算を実行する場合，着目ノードからランダムウォーク (RW) を実行し，演算対象の部分グラフを取得する．
-RW によるグラフ取得では図\ref{RW_graph} で示すように，確率 1-α で任意の隣接頂点へ，確率 α で始点へ移動し，
+RW によるグラフ取得では着目ノードを始点として，確率 1-α で隣接ノード群からランダムに選択したノードへ，確率 α で始点へ移動するという操作を繰り返し，
 全体の軌跡を部分グラフとして取得する．
+ID 10 のノードを始点とした場合の RW によるグラフ取得の例を図\ref{RW_graph} に示す．
 \begin{figure}[t]
   \centering
   %\includegraphics[width=\linewidth]{./figure/rw_graph.pdf}
   %\includegraphics[scale=1.0]{./figure/RW_graph.pdf}
-  \includegraphics[scale=2.0]{./figure/RW_graph.pdf}
+  \includegraphics[scale=1.8]{./figure/rw_graph_get.pdf}
   \caption{ランダムウォークによるグラフ取得}
   \label{RW_graph}
 \end{figure}
-なお，RW による取得の特徴として
-全体グラフの構造を維持しながら部分グラフの取得が可能という点が挙げられる．
+なお，RW による取得の特徴として全体グラフの構造を維持しながら部分グラフの取得が可能という点が挙げられる．
 PR や PPR などのグラフ演算実行時にはメモリへの不規則なアクセスによるキャッシュミスが多発する．
 \cite{wei2016speedup,zhang2017making} では，演算時間の約 70 \% がキャッシュミスに伴う
 メインメモリへのアクセス時間によるものと報告されており，キャッシュミスは演算速度低下を引き起こす重大な要因の１つである．

@@ -17,16 +17,18 @@ PageRank (PR)，Dominating Set (DS) \cite{cockayne1978domination}，Graph Decomp
 ノード ID の再配置では，グラフ演算に伴うメモリアクセスの特徴を考慮することで，キャッシュミス減少を実現する．
 また，ノード ID の配置を変更するだけなので，グラフアルゴリズムやデータ構造自体を変更する必要はなく，既存のグラフ処理系に対して容易に適用することが可能である．
 
-グラフ演算では各ノードが PR での重要度や BFS での始点からの距離などといった，アルゴリズム固有の値を保持している．
-一般に，これらの値は図 \ref{id_index}で示すように，ノード ID をインデックスとする配列に格納される．
+グラフ演算では各ノードが PR における重要度や BFS における始点からの距離などのアルゴリズム固有の値を保持しており，これらの値はノード ID をインデックスとする配列へ格納される．
+%一般に，これらの値は図 \ref{id_index}で示すように，ノード ID をインデックスとする配列に格納される．
+図\ref{id_index} にノード ID をインデックスとする配列の例を示す．
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{./figure/id_index.pdf}
   \caption{ノード ID をインデックスとする配列での格納}
   \label{id_index}
 \end{figure}
-そのため，ID が連続するノードの値はメモリ上で連続して格納され，ID が近いノードの値は同一キャッシュブロックに属する．
-図\ref{cache_block}で示すように，ノード ID X の値が参照され，キャッシングがされる場合，X 前後の ID を持つノードもまとめてキャッシングされる．
+配列はメモリ上で連続した領域を確保するため，ID が連続するノードの値はメモリ上で連続して格納され，ID が近いノードの値は同一キャッシュブロックに属する．
+そのため，ノード ID X の値が参照された場合，X 前後の ID を持つノードの値もまとめてキャッシングされる
+図\ref{cache_block}にブロック単位でのキャッシングの例を示す．
 \begin{figure}[t]
   \centering
   %\includegraphics[width=\linewidth]{./figure/cache_block.pdf}
