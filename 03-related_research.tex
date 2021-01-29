@@ -1,10 +1,10 @@
 関連研究として，既存の ID 再配置手法について説明する．
 \section{Gorder}
-Gorder\cite{wei2016speedup} は演算時のアクセス局所性に着目し，有向グラフ上で任意の２ノード u, v 間に \textit{neighbor relationship} と \textit{sibling relationship} を定義する．
-そして，これらの関係に基づいてノード u, ノード v の近接度合いをスコア化する．
-neighbor relationship に基づくスコアでは，ノード u，ノード v が双方向にエッジを張っている場合＋２,
-ノード u，ノード v の一方から他方へエッジが張られている場合＋１，ノード u，ノード v 間にエッジが張られていない場合＋０ となる．
-また，sibling relationship に基づくスコアでは，ノード u，ノード v が共通のノード x からエッジを張られている場合＋１ となり，
+Gorder\cite{wei2016speedup} は演算時のアクセス局所性に着目し，有向グラフ上で任意の２ノード $u$, $v$ 間に \textit{neighbor relationship} と \textit{sibling relationship} を定義する．
+そして，これらの関係に基づいてノード $u$, ノード $v$ の近接度合いをスコア化する．
+neighbor relationship に基づくスコアでは，ノード $u$，ノード $v$ が双方向にエッジを張っている場合＋２,
+ノード $u$，ノード $v$ の一方から他方へエッジが張られている場合＋１，ノード $u$，ノード $v$ 間にエッジが張られていない場合＋０ となる．
+また，sibling relationship に基づくスコアでは，ノード $u$，ノード $v$ が共通のノード x からエッジを張られている場合＋１ となり，
 ノード x の数に応じてスコアが加算されていく．
 neighbor relationship を図\ref{neighbor} に，sibling relationship を図\ref{sibling} に示す． 
 \begin{figure}[t]
@@ -29,17 +29,17 @@ neighbor relationship を図\ref{neighbor} に，sibling relationship を図\ref
   \end{tabular}
 \end{figure}
 ここで，neighbor relationship に基づくスコアを $S_{n}(u,v)$，sibling relationship に基づくスコアを $S_{s}(u,v)$としたとき，
-ノード u，ノード v のスコア $S(u,v)$ は(\ref{gorder_score})式で定義される．
+ノード $u$，ノード $v$ のスコア $S(u,v)$ は(\ref{gorder_score})式で定義される．
 \begin{equation}
   S(u,v) = S_{n}(u,v) + S_{s}(u,v) \label{gorder_score}
 \end{equation}
-そして，ノード u，ノード v の ID がそれぞれ $\phi(u)$，$\phi(v)$に変換される時，
+そして，ノード $u$，ノード $v$ の ID がそれぞれ $\phi(u)$，$\phi(v)$に変換される時，
 (\ref{gorder})式で定義する $F(\phi)$ を最大化する ID 配置 $\phi$ に基づいて再配置を実行する．
 \begin{equation}
   F(\phi) = \sum_{0<\phi(v)-\phi(u)\leq3}^{} S(u,v) \label{gorder}
 \end{equation}
 なお，図\ref{reordering_intro} は Gorder の例を示しており，(\ref{gorder})式で定義される$F(\phi)$ を最大化するように ID が再配置されている．
-Gorder はグラフ演算速度の向上率という観点では最良の ID 再配置手法だが，前処理の時間コストが大きすぎるため非実用的と指摘されている\cite{balaji2018graph, faldu2019closer}．
+Gorder はグラフ演算速度の向上率という観点では最良の ID 再配置手法だが，処理の時間コストが大きすぎるため非実用的と指摘されている\cite{balaji2018graph, faldu2019closer}．
 \section{Degree Sorting}
 DegreeSorting は次数による局所性のみに着目し，高次数ノードから昇順の ID を再配置していく．
 図\ref{Original} で示す 12 ノードを Degree Sorting で再配置する場合の例を図\ref{degree_sorting} で示す．
@@ -63,7 +63,7 @@ DegreeSorting は次数による局所性のみに着目し，高次数ノード
 Hub Sorting \cite{zhang2017making} は，Degree Sorting と同様に次数による局所性に着目しているが，高次数ノードのみ次数に基づくソートを実行し ID を再配置している．
 これにより，低次数ノードでは近接構造による局所性を維持しつつ，アクセスが集中する高次数ノードでは次数による局所性を考慮している．
 Hub Sorting では，平均次数以上の次数を持つノードを高次数ノードとみなしているが，
-実世界グラフおいて平均次数以上のノードに接続しているエッジは全体の 80 - 90 \% を占める\cite{faldu2019closer}．
+実世界グラフおいて平均次数以上のノードに接続しているエッジは全体の 80 \% - 90 \% を占める\cite{faldu2019closer}．
 そのため，高次数ノードにおいても近接構造による局所性を考慮した ID 再配置を実行する必要があるが，
 Hub Sorting による再配置では高次数ノードでの近接構造による局所性を考慮できていないという問題点が存在する．
 図\ref{hubclustering} で Hub Sorting による再配置の例を示すが，平均次数 20 を越える高次数ノード内で元の ID の順序が保たれていないことが確認できる．
@@ -104,6 +104,20 @@ DBG による再配置の例を図\ref{dbg} で示す．
 \end{figure}
 \section{まとめ}
 本章では，既存の代表的な ID 再配置手法として，Gorder，Degree Sorting，Hub Sorting，Hub Clustering を紹介した．
+表 \ref{related_matrix} に演算速度向上及び処理コストの観点に着目した場合の各手法における長所・短所を示す．
+\begin{table}[t]
+  \begin{center}
+    \caption{既存手法の長所・短所}
+    \begin{tabular}{|c|c|c|} \hline
+      & 演算速度向上 & 処理コスト \\ \hline
+      Gorder & \checkmark\checkmark\checkmark & \xmark \\ \hline 
+      Hub Sorting & \checkmark & \checkmark \\ \hline
+      Hub Clustering & \checkmark & \checkmark\checkmark \\ \hline 
+      DBG & \checkmark\checkmark & \checkmark\checkmark \\ \hline 
+    \end{tabular}
+    \label{related_matrix}
+  \end{center}
+\end{table}
 また，本章で紹介した手法以外にも，Rabbit Order \cite{arai2016rabbit}，ReCall \cite{lakhotia2017recall}，Slash Burn \cite{kang2011beyond}，
 METIS \cite{karypis1998multilevelk} などの手法が提案されている．
 しかし，既存手法はグラフの全体構造が把握可能という前提のもと議論されている．

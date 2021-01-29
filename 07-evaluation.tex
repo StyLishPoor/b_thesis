@@ -23,10 +23,10 @@ Pokec Social Network \cite{takac2012data} を使用した．
 
 \subsection{パラメータの決定方法}
 まず，RW 回数 N の決定方法について述べる．
-表 \ref{rw_graph} で示すように，全体グラフのエッジ数に対する取得グラフのエッジ数は N = 100 万 のとき約 5 \%， N = 300 万 のとき約 10 \% となることが
+表 \ref{rw_graph} で示すように，全体グラフのエッジ数に対する取得グラフのエッジ数は N = 1,000,000 のとき約 5 \%， N = 3,000,000 のとき約 10 \% となることが
 実験的に明らかになった．
 5 \% - 10 \% 程度のエッジを取得するという状況は全体グラフの一部を取得するという前提に矛盾しないと
-判断し，N = 100 万，300 万をパラメータとして採用した．
+判断し，N = 1,000,000，3,000,000をパラメータとして採用した．
 
 次に，始点へ戻る確率 α の決定方法について述べる．
 一般に，RW において始点に戻るまでの平均経路長は 1/α であることが知られている．
@@ -43,8 +43,8 @@ M は DBG-EE における再配置実行間隔に対応している．
     \caption{RW 回数と取得したエッジ数の割合の関係}
     \begin{tabular}{cccc} \toprule
       RW 回数 & ノード数 & エッジ数 & 取得したエッジ数の割合 \\ \hline
-      100 万回 & 435,934 & 1,411,607 & 4.61 \%　\\
-      300 万回 & 686,506 & 3,409,700 & 11.3 \% \\ \bottomrule
+      1,000,000 & 435,934 & 1,411,607 & 4.61 \% \\
+      3,000,000 & 686,506 & 3,409,700 & 11.3 \% \\ \bottomrule
     \end{tabular}
     \label{rw_graph}
   \end{center}
@@ -53,8 +53,8 @@ M は DBG-EE における再配置実行間隔に対応している．
   \begin{center}
     \caption{各パラメータの値}
     \begin{tabular}{cc} \toprule
-      N & 100 万, 300 万 \\
-      M & 1 万，10 万 \\
+      N & 1,000,000 3,000,000 \\
+      M & 10,000 100,000 \\
       α & 0.2 \\ \bottomrule
     \end{tabular}
     \label{parameter}
@@ -92,43 +92,43 @@ RW で取得したグラフに対して PageRank (PR) と Personalized PageRank 
 
 \section{ID 再配置を実行するためのメモリ使用量}
 まず，ID 再配置を実行するためのメモリ使用量を DBG に対する割合として測定した．
-N = 100 万での結果を図 \ref{memory_usage_1000000} に，
-N = 300 万での結果を図 \ref{memory_usage_3000000} に示す． 
-Sequential は N = 100 万でメモリ使用量が 40.0 \% 減少，N = 300 万で 41.9 \% 減少と両方の場合でメモリ使用量の減少率が最大となった．
-DBG-EE では M = 10,000 の場合 N = 100 万で 29.5 \% 減少，N = 300 万で 35.4 \% 減少し，
-M = 100,000 の場合 N = 100 万で 16.5 \% 減少，N = 300 万で 26.8 \% 減少した．
+N = 1,000,000での結果を図 \ref{memory_usage_1000000} に，
+N = 3,000,000での結果を図 \ref{memory_usage_3000000} に示す． 
+Sequential は N = 1,000,000でメモリ使用量が 40.0 \% 減少，N = 3,000,000で 41.9 \% 減少と両方の場合でメモリ使用量の減少率が最大となった．
+DBG-EE では M = 10,000 の場合 N = 1,000,000で 29.5 \% 減少，N = 3,000,000で 35.4 \% 減少し，
+M = 100,000 の場合 N = 1,000,000で 16.5 \% 減少，N = 3,000,000で 26.8 \% 減少した．
 これらの結果から，Sequential，DBG-EE はグラフ取得の完了を待たないことで空間コストの削減を達成できていることが明らかとなった．
 しかし，DBG-EE では M の値が大きいほど取得途中で保持しなければならないグラフ構造が巨大化するため，
 M = 100,000 の場合で M = 10,000 の場合より減少率が低下した．
-また，N = 100 万より N = 300 万の方が減少率が大きいことから，
+また，N = 1,000,000より N = 3,000,000の方が減少率が大きいことから，
 取得するグラフのサイズが大きいほど Sequential, DBG-EE の効果が大きいことが明らかとなった．
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{./figure/memory_usage_10000.pdf}
-  \caption{N = 100 万の場合における DBG に対するメモリ使用量}
+  \caption{N = 1,000,000の場合における DBG に対するメモリ使用量}
   \label{memory_usage_1000000}
 \end{figure}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{./figure/memory_usage_3000000.pdf}
-  \caption{N = 300 万の場合における DBG に対するメモリ使用量}
+  \caption{N = 3,000,000の場合における DBG に対するメモリ使用量}
   \label{memory_usage_3000000}
 \end{figure}
 
 \section{グラフ取得開始から演算終了までの合計時間}
 \label{total_time}
 次に，グラフ取得を開始してから PR 演算が終了するまでの合計時間を計測した．
-N = 100 万での結果を図 \ref{total_time_1000000} に，
-N = 300 万での結果を図 \ref{total_time_3000000} に示す．
+N = 1,000,000での結果を図 \ref{total_time_1000000} に，
+N = 3,000,000での結果を図 \ref{total_time_3000000} に示す．
 
-まず，図\ref{total_time_1000000} で示すように，N = 100 万のとき Original と比べて合計時間が M = 10,000 の場合の DBG-EE で 28.8 \% 減少，M = 100,000 の場合の DBG-EE で 30.7 \% 減少， 
+まず，図\ref{total_time_1000000} で示すように，N = 1,000,000のとき Original と比べて合計時間が M = 10,000 の場合の DBG-EE で 28.8 \% 減少，M = 100,000 の場合の DBG-EE で 30.7 \% 減少， 
 Sequential で 25.5 \% 減少した．
 また，DBG と比べて M = 10,000 の場合の DBG-EE で 7.8 \% 減少，M = 100,000 の場合で 10.3 \% 減少， 
 Sequential で 4.5 \% 減少し，全ての場合で DBG より合計時間が減少した．
-これらの結果から N = 100 万のとき Sequential，DBG-EE はグラフ取得の完了を待たないことで時間コストの削減を達成できていることが明らかとなった．
+これらの結果から N = 1,000,000のとき Sequential，DBG-EE はグラフ取得の完了を待たないことで時間コストの削減を達成できていることが明らかとなった．
 %最も時間コストが削減されたのは M = 100,000 の場合の DBG-EE で DBG と比べて合計時間が 11 \% 短縮している．
-また，図\ref{total_time_3000000} で示すように N = 300 万のとき Original と比べて M = 10,000 の場合の DBG-EE で 14.5 \% 減少，M = 100,000 の場合で 16.5 \% 減少， 
+また，図\ref{total_time_3000000} で示すように N = 3,000,000のとき Original と比べて M = 10,000 の場合の DBG-EE で 14.5 \% 減少，M = 100,000 の場合で 16.5 \% 減少， 
 Sequential で 9.9 \% 減少し，全ての場合で Orginal より合計時間が減少した．
 一方で，DBG と比べて M = 10,000 の場合の DBG-EE で 4.1 \% 減少，M = 100,000 の場合の DBG-EE で 6.3 \% 減少，
 Sequential で 1.1 \% 増加と，Sequential で DBG より合計時間が増加した．
@@ -143,26 +143,26 @@ DBG は取得完了後の再配置に伴い時間コストが発生するが，R
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{./figure/total_time_1000000.pdf}
-  \caption{N = 100 万の場合におけるグラフ取得と演算の合計時間}
+  \caption{N = 1,000,000の場合におけるグラフ取得と演算の合計時間}
   \label{total_time_1000000}
 \end{figure}
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{./figure/total_time_3000000.pdf}
-  \caption{N = 300 万の場合におけるグラフ取得と演算の合計時間}
+  \caption{N = 3,000,000の場合におけるグラフ取得と演算の合計時間}
   \label{total_time_3000000}
 \end{figure}
 
 \section{演算のみに要する時間}
 \label{algo_time}
 最後に，PR と PPR の演算のみに要する時間を測定した．
-N = 100 万での結果を図 \ref{algo_time_1000000} に，
-N = 300 万での結果を図 \ref{algo_time_3000000} に示す．
-まず，図\ref{algo_time_1000000} で示すように，N = 100 万のとき Original と比べて PR 演算時間が M = 10,000 の場合の DBG-EE で 45.7 \% 減少，M = 100,000 の場合の DBG-EE で 46.8 \% 減少， 
+N = 1,000,000での結果を図 \ref{algo_time_1000000} に，
+N = 3,000,000での結果を図 \ref{algo_time_3000000} に示す．
+まず，図\ref{algo_time_1000000} で示すように，N = 1,000,000のとき Original と比べて PR 演算時間が M = 10,000 の場合の DBG-EE で 45.7 \% 減少，M = 100,000 の場合の DBG-EE で 46.8 \% 減少， 
 Sequential で 44.4 \% 減少した． 
 また，PPR 演算時間は Original と比べて M = 10,000 の場合の DBG-EE で 25.4 \% 減少，M = 100,000 の場合の DBG-EE で 27.6 \% 減少， 
 Sequential で 40.6 \% 減少した．
-さらに，図\ref{algo_time_3000000} で示すように，N = 300 万のとき Original と比べて PR 演算時間が M = 10,000 の場合の DBG-EE で 26.7 \% 減少，M = 100,000 の場合の DBG-EE で 29.3 \% 減少， 
+さらに，図\ref{algo_time_3000000} で示すように，N = 3,000,000のとき Original と比べて PR 演算時間が M = 10,000 の場合の DBG-EE で 26.7 \% 減少，M = 100,000 の場合の DBG-EE で 29.3 \% 減少， 
 Sequential で 24.4 \% 減少した．
 また，PPR 演算時間は Original と比べて M = 10,000 の場合の DBG-EE で 16.0 \% 減少，M = 100,000 の場合の DBG-EE で 16.9 \% 減少， 
 Sequential で 20.3 \% 減少した．
@@ -171,11 +171,11 @@ PR では DBG-EE の方が減少率が大きく，PPR では Sequential の方�
 なお，N が大きいほど減少率が低下することが明らかとなった．
 これは，より多くのグラフ構造を取得するほど Original が全体グラフに近づき，ID の連続性が向上するからだと考えられる．
 
-一方で，DBG と比べて N = 100 万のとき PR 演算時間は M = 10,000 の場合の DBG-EE で 11.4 \% 増加，M = 100,000 の場合の DBG-EE で 9.1 \% 増加， 
+一方で，DBG と比べて N = 1,000,000のとき PR 演算時間は M = 10,000 の場合の DBG-EE で 11.4 \% 増加，M = 100,000 の場合の DBG-EE で 9.1 \% 増加， 
 Sequential で 14.1 \% 増加した．
 また，PPR 演算時間は DBG と比べて M = 10,000 の場合の DBG-EE で 7.3 \% 増加，M = 100,000 の場合の DBG-EE で 4.1 \% 増加， 
 Sequential で 14.5 \% 減少した．
-さらに，N = 300 万のとき PR 演算時間は M = 10,000 の場合の DBG-EE で 14.1 \% 増加，M = 100,000 の場合の DBG-EE で 10.1 \% 増加， 
+さらに，N = 3,000,000のとき PR 演算時間は M = 10,000 の場合の DBG-EE で 14.1 \% 増加，M = 100,000 の場合の DBG-EE で 10.1 \% 増加， 
 Sequential で 17.6 \% 増加した．
 また，PPR 演算時間は M = 10,000 の場合の DBG-EE で 3.0 \% 増加，M = 100,000 の場合の DBG-EE で 2.0 \% 増加， 
 Sequential で 2.3 \% 減少した．
@@ -191,12 +191,12 @@ Sequential では 部分的に近接構造によるアクセス局所性を考�
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{./figure/algo_time_1000000.pdf}
-  \caption{N = 100 万の場合における PR, PPR 演算時間}
+  \caption{N = 1,000,000の場合における PR, PPR 演算時間}
   \label{algo_time_1000000}
 \end{figure}
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\linewidth]{./figure/algo_time_3000000.pdf}
-  \caption{N = 300 万の場合における PR, PPR 演算時間}
+  \caption{N = 3,000,000の場合における PR, PPR 演算時間}
   \label{algo_time_3000000}
 \end{figure}
